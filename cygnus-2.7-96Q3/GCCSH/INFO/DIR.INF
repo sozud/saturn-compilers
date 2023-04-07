@@ -1,0 +1,34 @@
+-*- Text -*-
+This file was generated automatically by the gen-info-dir script.
+This version was generated on Thu Aug 29 00:26:04 PDT 1996
+by root@pooh.segaoa.com for /usr2/src/dos/H-dos/sh-hms/info
+
+This is the file .../info/dir, which contains the topmost node of the
+Info hierarchy.  The first time you invoke Info you start off
+looking at that node, which is (dir)Top.
+
+File: dir	Node: Top	This is the top of the INFO tree
+  This (the Directory node) gives a menu of major topics. 
+  Typing "d" returns here, "q" exits, "?" lists all INFO commands, "h" 
+  gives a primer for first-timers, "mTexinfo<Return>" visits Texinfo topic,
+  etc.
+  --- PLEASE ADD DOCUMENTATION TO THIS TREE. (See INFO topic first.) ---
+
+* Menu: The list of major topics begins on the next line.
+
+
+* As: (as).                     The GNU assembler.
+* Binutils: (binutils).         The GNU binary utilities "ar", "objcopy",
+				"objdump", "nm", "nlmconv", "size",
+                                "strings", "strip", and "ranlib".
+* Cpp: (cpp).			The C preprocessor.
+* gasp: (gasp).                     The GNU Assembler Preprocessor
+* Gcc: (gcc).                           Using and Porting the GNU C compiler.
+* Gdb: (gdb).                     The GNU debugger.
+* history.inf: (history.inf).
+* intro: (intro.info).         An Introduction to Cygnus Releases
+* Ld: (ld).                       The GNU linker.
+* COPYING: (license).		The GNU General Public License
+* make: (make).                 A program for directing recompilation
+* readline.inf: (readline.inf).
+* Reno 1: (reno-1).             The GNU C++ Renovation Project, Phase 1.

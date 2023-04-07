@@ -1,0 +1,846 @@
+
+GCC for SH Microprocessors FAQ (Frequently Asked Questions)
+
+Info file by: Toshiyasu Morita
+ Last update: 7/18/96 @ 12:51 pm
+
+Note: The gcc change log has been split out into a separate file called
+      "gcc.log". There is now a change log for this faq called "faq.log"
+      as well.
+
+--------------
+Reporting bugs
+--------------
+
+Please make sure your bug actually exists, since we've had a spate of
+subsequently disproven bug reports, and each release of GCC is
+sanity checked. (We run it through c-torture and recompile DOOM 32x.)
+
+When sending bug reports, please send:
+
+1) The smallest C source fragment that will reproduce the bug, preferably
+   already preprocessed, (the -E switch)
+
+2) The resultant erroneous output code with a few comments indicating
+   the offending code, and why it is incorrect (See "Generating mixed
+   C/assembly listings" for instructions on producing mixed listings),
+
+3) The compiler switch(es) used to compile the example,
+
+4) The compiler version - the compiler version and Sega release date.
+   Be sure to verify the correct version by typing "gcc -v".
+
+Please send the above to:
+
+SOA Developer Technical Support hotline: 415/802-1719 or dts@sega.com
+
+-------------------
+Install directions:
+-------------------
+
+1) Don't forget to back up the previous version of GCC!
+
+   Sometimes when changes are made to fix bugs in gcc the modifications
+   will create new bugs - so be sure to save your previous version!
+
+2) Make sure you're in 80x24 video mode. (type "mode co80" if you're not)
+
+3) Insert disk 1 and type "install".
+
+4) After installation is finished, look at the setenv.bat file to see which
+   environment variables should be set. The basic ones for compiling C are:
+
+   set PATH=%PATH%;c:\gccsh\bin
+   set GCC_EXEC_PREFIX=c:\gccsh\lib\   <- Don't forget trailing backslash!!!
+   set COMPILER_PATH=c:\gccsh\bin
+   set C_INCLUDE_PATH=c:\gccsh\include
+   set LIBRARY_PATH=c:\gccsh\lib
+   set INFOPATH=c:\gccsh\info
+   set GO32=emu c:\gccsh\bin\emu387    <- ONLY NEEDED FOR MACHINES w/NO FPU
+                                          (e.g. 80386, 80486SX)
+
+5) Your compiler should be installed - type "gcc" and it should say:
+
+   gcc.exe: No input files
+
+6) Be sure to recompile all of your source files. The code between different
+   versions may not be compatible; the most notable was an object file format
+   change during 9/94. If you mix object files from different versions
+   it's likely your code will fail.
+
+7) A hardcopy of the GCC manual is available from Sega; don't forget to
+   request a copy if you don't already have one.
+
+8) Source is available on dts.segaoa.com in /pub/gnutools/source.
+   We don't recommend you attempt to compile the compiler unless you're a 
+   experienced Unix programmer, however, as it entails a lot of work.
+
+9) A hypertext help system is included with the gnu tools package; to see
+   a list of help topics type "info" and move the cursor using the arrow
+   keys to the topic of interest, and press return.
+
+------------------------------------------
+Common problems - Running GCC under MS-DOS
+------------------------------------------
+
+1) GCC/AS/LD says "can't open blah: interrupted system call"
+
+   You don't have enough file descriptors. Try setting FILES=30 in your
+   CONFIG.SYS
+
+2) GCC crashes frequently.
+
+   Even though GCC is a protect-mode program, it still requires
+   conventional memory for disk buffers & etc. If you have less than
+   500k of conventional memory free, it will crash quite frequently.
+   If you have more than 550k free, GCC should run fine.
+
+   When GCC crashes, it tends to leave blocks allocated on your hard
+   disk, and eventually you will have megabytes of unused but allocated
+   space on your hard drive. When GCC crashes, be sure to run SCANDISK
+   or CHKDSK after rebooting.
+
+   Also, if you are compiling on a 486 or above with the GO32 environment
+   variable set to emulate the 80387, GCC tends to crash for some reason.
+   Be sure your GO32 environment variable is cleared if you're compiling
+   on a 486 or above.
+
+3) GCC & utilities help
+
+   The "info" command gives you help on various utilities. To see the
+   command line switches for gcc, type "info gcc". To see a list of the
+   available info topics, look in the C:\GCCSH\INFO directory. To leave
+   the info utility, type ctrl-X ctrl-C. (It's a mini-Emacs).
+
+4) LD reports "Not enough memory" when linking large programs.
+
+   To see how much memory is available for use by the DOS extender, type:
+
+   go32
+
+   The DOS extender will report how much RAM and swap space is available.
+
+   If you're using EMM386, one way to increase the available RAM is to use
+   
+   EMM386 AUTO
+
+   and emm386 will automagically convert XMS to EMS when needed.
+
+5) Linker is slow.
+
+   Try using a RAMdisk for temporary files - I've heard various reports
+   it can decrease link time by a factor of two, or more.
+
+6) Can't redirect compiler errors to a file.
+
+   Set the GO32 environment variable to include the string "2r1". This
+   will redirect stderr to stdout enabling error output to be 
+   redirected.
+
+7) Long command lines
+
+   GCC supports "command files" - you can use "gcc @filename" and
+   GCC will fetch its command line options from the specified
+   filename.
+
+8) Install program crashes when attempting to install.
+
+   This is a known compatibility problem with some Number Nine Imagine 128
+   cards. Contact DTS to receive a .ZIP file of the current GCC distribution
+   which you man then unzip to your hard drive.
+  
+   When a .ZIP installation is performed the patches in the SETENV.BAT
+   file must be manually edited to set the correct paths for the compiler
+   and libraries.
+
+---------------------
+Notes - C programming
+---------------------
+
+1) Using C++ style comments (//) in C programs.
+
+   To enable "//" style comments in C programs, add the following to your
+   gcc command-line parameters:
+
+   -Wp,-lang-c-c++-comments
+
+   (Note: the preprocessor now accepts "//" comments by default, so
+    this is not necessary.)
+
+2) Don't forget to clear out your BSS & set your own stack.
+
+   Programs compiled by gcc expect their BSS to be cleared before main()
+   is called - if you don't have a stub which does this, then your code
+   will probably not function correctly.
+
+   Variables such as "int foo = 0;" will be placed in your BSS, and if
+   your BSS isn't cleared, then (obviously) foo may have a nonzero value.
+
+   The default stack in crt0.o is eight bytes - be sure to set up
+   your own stack if you plan to do anything at all.
+
+3) Use "volatile" qualifier and cache-through address where necessary.
+
+   GCC will load a value once and test it, if it can:
+
+   int wait_flag;
+   while (wait_flag);
+
+   may generate:
+
+        mov	@r4,r0
+   L5   cmp/eq  #0,r0
+        bf      L5
+
+   unless wait_flag is declared properly.
+
+   The volatile qualifier MUST be used on:
+
+   a) Semaphores between CPUs
+   b) Semaphores between mainline and interrupt code
+   c) Pointers to hardware registers
+
+   The cache-through address MUST be used on:
+
+   a) Semaphores between CPUs
+   b) Pointers to hardware registers
+
+   Also, be sure variables which are accessed by cache-through are
+   CONSISTENTLY accessed via cache-through - if you write to non-cached space,
+   then read in cached space, you may get the cached version of the data, which
+   will not be correct.
+
+4) Compiler switches:
+
+   Recommended:
+
+   -m2: Tells gcc to generate SH2 code. gcc-sh generates code for SH1
+        by default.
+
+	-m2 will allow gcc to generate:
+
+	a) muls, mulu instructions
+	b) Delayed branch instructions
+
+   -O2: Turns on maximum optimization. If you see any bugs, drop down to
+        just -O and report the bug the Sega Technical Support. If you still
+	encounter the bug, use -O0.
+
+   -ansi: Turns on ansi-compliance warnings. For strict ANSI compliance
+	  (no GNU C extensions) use -pedantic instead (somewhat deprecated).
+
+   -Wall: Turns on all warnings. This will detect uninitialized variables,
+	  unused variables, etc. Generally a Good Thing.
+
+   -nostdlib: Prevents gcc from linking libraries containing useless
+	      functions such as exit(), fork(), etc.
+  
+   Optional:
+
+   -fomit-frame-pointer: Allows the compiler to use r14 as a general purpose
+                         register. Since the source-level debugger expects to
+                         locate local variables by using r14, this may cause
+                         problems when attempting to source-level debug.
+                         Do not use this compiler option when debugging code.
+
+   -mspace: This tells the compiler to optimize for space instead of speed.
+            In particular, memory moves (for structures & etc) are not
+            expanded out. Useful if you're tight on code space.
+
+5) Linker cannot find symbols which are in your library files.
+
+   The linker only makes one pass through your libraries, so if you have
+   two libraries which are dependent on each other you must mention the first
+   library, then the second library, then the first library again.
+
+   It is possible to create pathological cases where the linker cannot
+   link your libraries. In such a case, you probably want to merge the
+   offending libraries into one single library.
+
+   For reference, the default link order is:
+
+   Without floating point math: -lgcc -lc -lgcc
+   With    floating point math: -lm -lgcc -lc -lgcc
+
+6) Porting from Hitachi C
+
+   Two problems we see often when converting code from SHC to GCC:
+
+   A) Missing volatile qualifiers.
+
+      SHC does not optimize heavily so you can be fairly sloppy with the
+      "volatile" qualifier and code will still work. Not so with GCC -
+      it optimizes very heavily and it will remove redundant loads.
+      See item #3 for specific circumstances where volatile must be used.
+
+   B) Not preserving MACL and MACH in interrupt-called routines.
+
+      SHC implements "callee preserves MACL and MACH" calling convention,
+      whereas GCC does not. If you have interrupt routines written in SHC
+      and you port them to GCC, they will not preserve MACL and MACH and
+      your mainline code will become flaky due to MACL/MACH corruption.
+
+7) Anonymous unions
+
+   Anonymous unions are not a part of the ANSI C (X3J11) standard; they
+   are a C++ feature implemented by some C compilers, but not by gcc.
+
+8) Floating point
+
+   Floating point is very slow. Since the SH2 doesn't have a hardware
+   floating point unit, all floating-point operations must be emulated
+   in software by the SH2. Avoid floating point! Use fixed point instead.
+   Floating point is probably 100-150 times slower than fixed point.
+
+   If you must use floating point, link with the floating point library
+   (libm.a) by specifying: "gcc <filename.c> -lm". The "-lm" MUST be
+   after the filename, not before.
+
+9) #pragma interrupt
+
+   "#pragma interrupt" specifies the next function defined is an interrupt
+   handler. This pragma instructs GCC to:
+
+   1) Save all modified registers. (r0-r14, macl & mach)
+
+   2) Terminate the function with an "rte" instead of an "rts".
+
+   If you are declaring several interrupt handlers you must insert
+   "#pragma interrupt" before every interrupt function.
+
+10) GCC code quality
+
+   GCC produces code which is (IMHO) pretty good for SH2, but not great.
+   GCC has very good target-independent optimization (common subexpression
+   elimination, invariant loop expression hoisting, etc) but mediocre
+   SH-specific optimizations. On complicated functions one can produce
+   code which runs 50% as fast as GCC output. A factor which contributes
+   to GCC's code quality for complicated functions:
+
+   1) GCC does not perform "alignment optimizations", i.e. it does not
+      align external bus access instructions on longword alignment
+      so it may utilize free bus cycles.
+
+   2) GCC does not perform optimize structure accesses within loops
+      very well. If a loop contains a reference to a structure field
+      which is >64 bytes offset from the start, GCC will repeatedly
+      reload the offset into a register from memory and will not
+      hoist it above the loop.
+
+11) Generating mixed C/assembly listings
+
+   To generate a nice assembly listing with interspersed C source, try:
+
+   gcc -O2 -m2 -g -S foo.c
+   as -ahld foo.s > junk.tmp
+
+   "junk.tmp" will now contain a nicely formatted mixed C/assembly listing.
+
+12) Inline assembly in C functions
+
+    Be sure to declare your inline assembly as "__asm__ volatile" instead of
+    just "__asm__" so gcc won't try to optimize and/or remove your
+    inline assembly code.
+
+    GCC has been known to optimize bits of inline assembly which aren't
+    volatile, producing strange results.
+
+    Also, if the two colons which separate the register constraints
+    at the end of an inline assembly fragment are missing, GCC will
+    occasionally crash. Be sure to place two colons even if there are
+    no register constraints in the inline assembly.
+
+    Incidentally, GCC will allow you to put an inline assembly section
+    outside of a function, so you can write whole assembly routines
+    in a C source file without wrapping them inside a C function!
+
+    When using assembly outside of a C function, omit the "volatile"
+    keyword since it isn't necessary and will only confuse the compiler.
+
+    Note: Inline assembly in a C source file outside of a function
+    is not source-level debuggable - if you wish to write large amounts
+    of assembly code it's recommended you create a separate assembly file
+    so it may be properly source-level debugged.
+
+13) gprof/gcov
+
+    gprof and gcov are included, but do not work on Saturn/32x - 
+    there is no filesystem support to create files.
+
+13) gcc-2.6.3
+
+    Don't use gcc-2.6.3 - it was released in December '94, and it
+    still has many bugs for the Hitachi SH target.
+    Use the latest SOA release instead.
+
+14) Standard C library calls - malloc(), free(), creat(), etc.
+
+    They exist, but they require host operating system support
+    through trap #3. See the source for more details.
+
+15) .ctor and .dtor sections
+
+    .ctor is the section for global C++ constructors, and .dtors are the
+    section for global C++ destructors. They require appropriate labels
+    when linking to delimit their start and end addresses, like this:
+
+    . = ALIGN(4);
+     __ctors = *;
+    *(.ctors)
+    __ctors_end = *;
+
+    . = ALIGN(4);
+     __dtors = *;
+    *(.dtors)
+    __dtors_end = *;
+
+    (this needs to be in your linker script)
+
+16) Viewing gcc phase execution
+
+    If you'd like to see the commands gcc passes to each of its passes, 
+    pass the "-v" option to gcc.
+
+17) GCC complains about "garbage at end of number".
+
+    You probably wrote something like "0x1800E+OFFSET". GCC interprets this
+    as a floating pointer number because of "0E+OFFSET" looks like a floating
+    point number.
+
+    The solution is to place a space between "E" and "+".
+
+18) Structure padding
+
+    The SH series microprocessors cannot access words on byte boundaries
+    or longwords on byte boundaries. Words must be word-aligned; longwords
+    must be longword-aligned.
+
+    This means if your structures contain shorts or longs, the compiler
+    will add padding on the previous element to align the short or longs
+    to an acceptable address.
+
+    The "-mpadstruct" option does NOT control this behavior. It controls
+    a different structure padding behavior; it enables structure padding
+    at the end of the structure to pad it out to a multiple of four bytes,
+    which is backwards compatible with gcc-2.6.3's broken behavior.
+
+19) Using the hardware divide unit
+
+    The SH2 has a parallel hardware divide unit which executes a divide
+    in 37 clocks. GCC does not use this hardware divide unit.
+
+    Here are two #defines to make it easy to use the hardware divide unit
+    from C:
+
+/*
+** void Set_Hardware_Divide(int, int);
+**
+** Set the dividend and divisor of the hardware divide unit.
+** The divider requires 37 clocks to calculate a result,
+** so you want to execute some other code before retrieving the result.
+*/
+
+#define Set_Hardware_Divide(x,y) \
+        ({ \ 
+                int *div_unit = (int *)0xffffff00; \ 
+                int dividend = x, divisor = y;     \ 
+                __asm__ volatile ("mov.l %0,@(4,%2); mov.l %1,@%2" \ 
+                        : /* no output */                          \ 
+                        : "r" (dividend), "r" (divisor), "r" (div_unit)); \ 
+        });
+
+/*
+** int Get_Hardware_Divide(void)
+**
+** Retrieves division result from the hardware divide unit.
+** If less than 37 clocks have elapsed the CPU will be halted
+** until the result is ready.
+*/
+
+#define Get_Hardware_Divide() \
+        ({                                         \ 
+                int *div_unit = (int *)0xffffff00; \
+                int __result;                      \
+                __asm__ volatile ("mov.l @(0x1c,%1),%0" \
+                        : "=r" (__result)               \ 
+                        : "r" (div_unit));              \ 
+                __result;                               \ 
+        });
+
+   You should call Set_Hardware_Divide to set the divide operation, execute some
+   C code while the divide unit calculates, then retrieve the result by calling
+   Get_Hardware_Divide.
+
+   Beware of using the divide unit in both mainline and interrupt code.
+   If the mainline code is using the hardware divide unit and an
+   interrupt routine also uses a hardware divide, then the result of the
+   mainline hardware divide may be overwritten which will cause subtle bugs.
+
+   If you absolutely need to perform hardware divides in both mainline and
+   interrupt code then you may need to save and restore the RAR and RSR on 
+   interrupts which use the hardware divide unit.
+
+20) _end 
+
+    The "_end" label is where sbrk() (called by malloc()) starts to allocate
+    memory. Basically, it designates the beginning of the heap. When the
+    heap pointer overlaps r15, the standard C library assumes the heap
+    has overflowed into the stack.
+
+    Note: If _end is undefined in your program, this means you've called
+    code which uses malloc(). This can be a bit dangerous, since the SH2
+    has no hardware MMU - it can't concatanate non-contiguous free pages
+    in the memory map by remapping them via the MMU, like Unices, which
+    means you'll have a much greater chance of running out of heap.
+
+    See "Interfacing with host OS" for more details.
+
+21) Using transcendentals (cos(), sin(), tan(), acos(), asin(), atan()...)
+
+    Transcendentals on the SH2 are very, very slow. They use very accurate
+    but very slow routines - if you need faster transcendentals try
+    creating lookup tables.
+
+22) Global constructors
+
+    If you're using C++, you must call _main() explicitly in your program
+    within your main() otherwise your global constructors will never be called
+    which will result in your program crashing.
+
+23) Overlays
+
+    See the file "overlay.txt" for more info on how to create overlays.
+
+24) Register contraints for inline assembly
+
+    The following contraints are valid in inline assembly code:
+ 
+    r: general purpose register (r0-r13; r14 also if -fomit-frame-pointer)
+    t: T bit
+    x: macl register
+    l: pr register
+    z: r0
+
+25) Spinlocks
+
+    The atomic "test and set" instruction "tas.b" should be used to implement
+    spinlocks. Here is a macro which generates tas.b:
+
+#define tas_byte(x)                     \
+({                                      \
+        char *address;                  \
+        int flag;                       \
+        address = &x;                   \
+        __asm__ volatile ("tas.b @%1; movt %0": "=r" (flag): "r" (address): "t"); \
+        flag;                           \
+})
+
+26) Interfacing with the host OS
+
+    The standard C library included with gcc performs a "trapa #34" to call
+    the host operating system for basic services. Here are the routines
+    which are called:
+
+    read:   trapa #34, r4: SYS_read,   r5: file,   r6: ptr,   r7: len
+    lseek:  trapa #34, r4: SYS_lseek,  r5: file,   r6: ptr,   r7: dir
+    write:  trapa #34, r4: SYS_write,  r5: file,   r6: ptr,   r7: len
+    close:  trapa #34, r4: SYS_close,  r5: file,   r6: 0,     r7: 0
+
+    sbrk:   this is internal to libc now, just set  "_end" to the end
+            of your program + data area, and it will allocate from "_end"
+            until it hits the stack pointer.
+
+    open:   trapa #34, r4: SYS_open,   r5: path,   r6: flags, r7: 0
+    creat:  trapa #34, r4: SYS_creat,  r5: path,   r6: mode,  r7: 0
+    exit:   trapa #34, r4: SYS_exit,   r5: n,      r6: 0,     r7: 0
+    kill:   trapa #34, r4: SYS_exit,   r5: 0xdead, r6: 0,     r7: 0
+    stat:   trapa #34, r4: SYS_stat,   r5: path,   r6: st
+    chmod:  trapa #34, r4: SYS_chmod,  r5: path,   r6: mode
+    chown:  trapa #34, r4: SYS_chown,  r5: path,   r6: owner, r7: group
+    utime:  trapa #34, r4: SYS_utime,  r5: path,   r6: times
+    fork:   trapa #34, r4: SYS_fork
+    wait:   trapa #34, r4: SYS_wait
+    execve: trapa #34, r4: SYS_execve, r5: path,   r6: argv,  r7: envp
+    execv:  trapa #34, r4: SYS_execv   r5: path,   r6: argv
+    pipe:   trapa #34, r4: SYS_pipe,   r5: fd
+
+27) Linking in general - C or assembly
+
+    It is better to use gcc to link, and use "-Xlinker option"
+    to pass options to the linker, than to use ld itself to link.
+
+    There are at least two reasons:
+
+    1) If ld is used to link, then the library paths must be
+       specified explicitly. This is a problem because
+       when gcc is upgraded, the makefile will need to be
+       changed as well to use the new libraries. If this
+       is not done. then the makefile will use the new gcc
+       with the old libraries, which can cause problems.
+
+    2) When linking using gcc, gcc will automatically set
+       the ld parameters so ld will search the SH2 libraries
+       before the SH1 libraries if -m2 is specified.
+       If ld is used directly, then the SH2 libraries 
+       must be specified manually in the correct order
+       relative to the SH1 libraries.
+
+28) Speeding up compiles & links
+
+    To decrease your build time by a factor of 2, try setting the environment
+    variable TMPDIR to a RAMdisk. This will cause gcc to store intermediate
+    files on the RAMdisk, which will decrease compilation time and link time
+    significiantly.
+
+Notes - Assembly programming
+----------------------------
+
+1) Using GAS:
+
+   Don't forget to align your literals! (.align 2) Failure to do so will
+   cause you to spend hours tracking down bus error bugs! Also, if you
+   have word literals put them at the end of your literal section so
+   they won't misalign any following longword literals.
+
+   Also, when using literals, be sure to place your longword literals first
+   followed by your word literals. If you place your word literals first,
+   if there are an odd number of word literals it will misalign the following
+   longword literals.
+
+   Note: .align in GAS specifies the number of least-significant zero bits,
+         not the actual alignment value. For example. .align 1 is word-aligned,
+	 .align 2 is longword-aligned, .align 4 is paragraph-aligned.
+
+   Also, GAS will not report literals which are too far from their reference,
+   nor will GAS report branches too far from their target. Be very careful
+   when hand-coding with GAS!
+
+   GAS also will not report illegal instructions (jump/branch) or stupid
+   (i.e. pc-relative) instructions in delay slots.
+
+2) GCC parameter passing conventions:
+
+       r0: Function return value
+
+    r0-r3: Temporaries. These are presumed to be destroyed by calling
+	   a function - it's not necessary to save & restore them.
+
+    r4-r7: First four arguments. May be destroyed by callee.
+
+   r8-r15: Usable temporaries. These are assumed to be preserved across
+	   function calls, so any assembly-language functions which
+	   interface with gcc MUST preserve these registers.
+
+       pr: Processor return - must be preserved, obviously.
+
+      gbr: gcc currently does not generate code which utilizes the gbr -
+	   so your assembly routines are free to use the gbr.
+
+  macl & mach: Assumed to be destroyed.
+
+  Note: Be sure to sign or zero-extend your chars and shorts in r4-r7
+        before calling a C function! GCC expects arguments in registers
+        to be fully sign extended to an int.
+ 
+3) Source-level debugging GAS assembly
+
+   The easiest way to assemble assembly files into .o files with debugging
+   information is to use the ".S" extension (MUST be uppercase) and assemble
+   them with gcc:
+
+   gcc -c file.S   
+
+   gcc will call cpp and as with the appropriate commands to properly assemble
+   the files with source-level debug information.
+
+   Incidentally, this also enables you to use all C preprocessor commands, 
+   e.g. "#define", "#if ... #else ... #endif", in your assembly source files.
+
+4) Stupid (but useful) assembly tricks:
+
+   A) Use MACL, MACH, and GBR as temporaries.
+   B) Save pr in a register (sts.l pr,r14)
+
+5) Post-morteming SH2 crashes
+
+   When the SH2 crashes, the best thing to do is to examine the PR to
+   determine the return address of the offending routine. This will often
+   tell you which routine has crashed. This applies to C code as well
+   as assembly code.
+
+6) Fast logical shift right by k 
+
+  (Courtesy of GNU superoptimizer 2.5)
+
+  Use the larger shifts by right. If necessary, insert a shift left between
+  two shift rights.
+
+  For example, for logical shift right 15, the sequence:
+
+  shlr8 r4
+  shll  r4
+  shlr8 r4
+
+  is much faster than the intuitively obvious sequence:
+
+  shlr8 r4
+  shlr2 r4
+  shlr2 r4
+  shlr2 r4
+  shlr  r4
+
+7) Fast arithmetic shift right by k
+
+  (Courtesy of GNU superoptimizer 2.5)
+
+  Shift by 7:
+
+  shll  r4
+  subc  r5,r5
+  xor   r5,r4
+  shlr8 r4
+  xor   r4,r5
+
+  Shift by 8:
+
+  shlr8  r4
+  swap.w r4,r5
+  exts.b r5,r6
+  xtrct  r6,r5
+
+  Shift by 9:
+
+  shlr8  r4
+  swap.w r4,r5
+  exts.b r5,r6
+  xtrct  r6,r5
+  shar   r5
+
+  The quick 'n dirty way to do large arithmetic shift rights is:
+
+  shll  r4
+  subc  r5,r5
+  xor   r5,r4
+  (logical shifts r4 here, k-1)
+  xor   r4,r5
+
+  for example, a right arithmetic shift by 10:
+
+  shal  r4
+  sbc   r5,r5
+  xor   r5,r4
+  shlr8 r4
+  shlr  r4
+  xor   r4,r5
+
+----------------------
+Writing efficient code
+----------------------
+
+1) Avoid code such as:
+
+   temp[index++] = a;
+   temp[index++] = b;
+   temp[index++] = c;
+
+   The C language standard specifies all variables must be updated at the
+   end of a statement, so the code generated will update "index" for
+   every statement. This is much better:
+
+   temp[index]   = a;
+   temp[index+1] = b;
+   temp[index+2] = c;
+   index += 3;
+
+   Another solution is to specify "index" as a "register int", which
+   does not necessarily registerize index but will exclude it from
+   aliasing considerations (i.e. will assume writes through pointers will
+   not modify the value of index)
+
+2) Use local variables.
+
+   Global variables are slow - to retrieve the value, the SH2 typically
+   must execute:
+
+   mov.l L2,r1
+   mov.l @r1,r1
+
+   Local variables are faster - it's stack-relative, and parameters
+   are even faster because the first four are passed in registers r4-r7.
+
+3) Use unsigned int if shifting right.
+
+   The SH2 has no instructions for "arithmetic shift right by n" where n
+   is greater than one, so gcc must generate extra code to arithmetic
+   right shift signed values by large counts. Try to make variables
+   which will be shifted right of unsigned type.
+
+4) Write small functions.
+
+   We've noticed GCC generates very pessimal code when it starts to
+   spill registers, so try to avoid doing too much in one function.
+
+   A function which exceeds more than about a hundred lines should
+   be broken into smaller functions.
+
+5) Don't use C++.
+
+   int main(void)
+   {
+       cout << "hello, world";
+   }
+
+  is 448k in C++. In general, C++ code tends to be huge for two reasons:
+
+    A) The code output is not as efficient, and
+
+    B) It tends to drag in huge libraries.
+
+----------------
+SGL 2.0 problems
+----------------
+
+1) When compiling SGL 2.0 sample code, ld complains about:
+   "undefined reference to __ashlsi3"
+
+   This is a problem with the SGL 2.0 makefiles. They are incorrectly
+   written. They have several problems:
+
+   1) They link with the SH1 libraries instead of the SH2 libraries,
+
+   2) They specify the library directory explicitly so when a new
+      GCC release is installed the makefiles must be changed,
+
+   3) The symbol "__edata" needs to be changed to "_edata" in
+      the link script.
+
+   Please replace your SGL 2.0 makefile with the file SGLMKFL
+   and edit your OBJECTS file so the LIBS line looks like:
+
+   LIBS = -lsgl
+
+   You will also need to delete ..\common\sl.lnk to force
+   it to be rebuilt from the makefile.
+
+   This will fix the problem.
+
+----------------
+SBL 6.0 problems
+----------------
+
+1) When using C++, errors are emitted when including machine.h from SBL 6.0.
+   Typical error: "machine.h:5: syntax error before '::'"
+
+   The SBL 6.0 machine.h header file is written incorrectly for C++.
+   The colon token in inline assembly separates register constraints,
+   and the machine.h file uses two colons without a space between them,
+   which causes it to be parsed as a C++ member reference (::) operator.
+
+   The fix is to separate the two colons in inline assembly with a space,
+   like this:
+
+   static inline void nop(void) {
+       asm volatile ( "nop": : ); 
+   }
+
+

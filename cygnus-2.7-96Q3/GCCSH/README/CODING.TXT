@@ -1,0 +1,48 @@
+
+GCC efficient coding file
+
+ Written by: Toshiyasu Morita
+Last Update:
+
+-------------------------------------------------------------
+1) Don't use ADD when you really mean OR when bit munging
+-------------------------------------------------------------
+
+   For example, for this function:
+
+   unsigned short swap_endian(unsigned short value)
+   {
+        return (value << 8) + (value >> 8);
+   }
+
+   GCC will not optimize this properly, and will generate this code:
+
+   _swap_endian:
+        mov.l   r14,@-r15
+        mov     r15,r14
+        extu.w  r4,r4
+        mov     r4,r1
+        shll8   r1
+        shlr8   r4
+        add     r4,r1
+        mov.l   @r15+,r14
+        rts
+        extu.w  r1,r0
+
+   If you use an OR instead of an ADD operator:
+
+   unsigned short swap_endian(unsigned short value)
+   {
+       return (value << 8) | (value >> 8);
+   }
+
+   then gcc will optimize properly, and generate:
+
+   _swap_endian:
+        mov.l   r14,@-r15
+        mov     r15,r14
+        swap.b  r4,r4
+        mov.l   @r15+,r14
+        rts
+        extu.w  r4,r0
+

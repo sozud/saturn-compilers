@@ -1,0 +1,54 @@
+
+Changes for SOA-960719:
+
+o Added mention of "-mspace" compiler option
+
+Changes for SOA-960328:
+
+o Update section "C++ style comments in C programs"
+o Added section "Install program crashes when installing"
+o Added section "SBL 6.0 problems"
+o Moved "Reporting Bugs" section to top of file.
+o Added section "Fast logical shift right by k"
+o Added section "Fast arithmetic shift right by k"
+
+Changes for SOA-960314:
+
+o Added section "Register constraints for inline assembly"
+o Added section "Spinlocks"
+o Added section "Interfacing with host OS"
+o Moved note regarding "GCC_EXEC_PREFIX" into environment variables section
+o Added section "SGL 2.0 Problems"
+o Added section "General linking - C & Assembly"
+o Added section "Speeding up compiles & links"
+o Update section "Code Quality"
+
+Changes for SOA-960130:
+
+o New site for SOA GNU tools source
+
+Changes for SOA-960119:
+
+o Added section for overlays.
+o Added section regarding global constructors
+
+Changes for SOA-951117:
+
+o Changed comments in "Code Quality"
+o Removed references to "-mclen3" option -
+  no longer supported
+
+Changes for SOA-950822:
+
+o Added section for the _end label
+o Removed reference to "-mbsr" - not supported
+o Added comment about GCC_EXEC_PREFIX for this version
+o Added comment about transcendental functions being slow
+
+Changes for SOA-950706:
+
+o Added a note to GCC parameter passing convention 
+o Added section on hardware divide
+o Clarify notes for "arithmetic shift right"
+o Clarify comment about "emu387 only needed for 386"
+o Added section for structure padding

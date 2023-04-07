@@ -1,0 +1,46 @@
+
+Notes on linker relaxation
+by Toshiyasu Morita
+Last Update: 3/12/96
+------------------------------------------
+
+Q: What is linker relaxation?
+
+A: Linker relaxation allows the compiler, assembler, and linker,
+   working in unison, to shorten calls and branches on the SH2.
+
+Q: How does it work?
+
+A: When the compiler generates a possibly-shortenable call, it marks it.
+   For example:
+
+L3:
+        mov.l   L5,r1
+        ...
+        .uses L3       <- "jsr @r1" uses the register load at L3
+        jsr     @r1
+
+L5:
+	.long	func
+
+If the target of the call is close enough at link time, the linker will
+replace the "jsr @r1" with a "bsr" and remove the "mov.l L5,r1" instruction
+and the ".long func" at L5.
+
+So, each successful relaxation of a function call saves 4 bytes
+(6 bytes -> 2 bytes) plus the code becomes slightly faster.
+
+Q: How do I use linker relaxtion?
+
+A: Compile your source files with the compiler option "-mrelax" and
+   link with the linker option "-relax". If using gcc to link, just
+   specify "-mrelax" again when linking.
+
+Q: Psy-Q doesn't link my object files when I specify linker relaxation.
+
+A: At this time (3/12/96) SN Systems has not yet implemented support
+   for linker relaxation. Try recompiling your files without relaxation.
+ 
+   If the current date is much later than 3/12/96 you should contact
+   SN Systems to see if they have a newer PSY-Q which supports relaxation.
+
